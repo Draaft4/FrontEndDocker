@@ -5,9 +5,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ApiService {
-  Future<http.Response> crearPelicula(Pelicula pelicula) {
+  Future<http.Response> crearPelicula(Pelicula pelicula,int port) {
     var url = Uri.parse(
-        ApiConstants.baseUrl + ApiConstants.endPoint + ApiConstants.insert);
+          "${ApiConstants.baseUrl}$port/${ApiConstants.endPoint}${ApiConstants.insert}");
     return http.post(
       url,
       headers: <String, String>{
@@ -17,10 +17,10 @@ class ApiService {
     );
   }
 
-  Future<List<Pelicula>?> getPeliculas() async {
+  Future<List<Pelicula>?> getPeliculas(int port) async {
     try {
       var url = Uri.parse(
-          ApiConstants.baseUrl + ApiConstants.endPoint + ApiConstants.list);
+          "${ApiConstants.baseUrl}$port/${ApiConstants.endPoint}${ApiConstants.list}");
       var response = await http.get(url);
       if (response.statusCode == 200) {
         List<Pelicula> peliculas = List<Pelicula>.from(

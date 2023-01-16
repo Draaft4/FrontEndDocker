@@ -32,13 +32,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
-
   List<Pelicula>? listPelicula;
 
   final controllerNombre = TextEditingController();
   final controllerGenero = TextEditingController();
   final controllerAnio = TextEditingController();
+  final controllerPuerto = TextEditingController();
 
   @override
   void initState() {
@@ -47,7 +46,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void getData() async {
-    listPelicula = await ApiService().getPeliculas();
+    listPelicula =
+        await ApiService().getPeliculas(int.parse(controllerPuerto.text));
     Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
   }
 
@@ -57,42 +57,52 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Column(
-        children: [
-          formulario(),
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Divider(),
-          ),
-          listPelicula == null || listPelicula!.isEmpty
-              ? const Center(
-                  child: CircularProgressIndicator(),
-                )
-              : ListView.builder(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  itemCount: listPelicula!.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      child: Column(
-                        children: [
-                          Text(listPelicula![index].id.toString()),
-                          const SizedBox(height: 10.0,),
-                          Text(listPelicula![index].nombre),
-                          const SizedBox(height: 10.0,),
-                          Text(listPelicula![index].genero),
-                          const SizedBox(height: 10.0,),
-                          Text(listPelicula![index].anioEstreno.toString())
-                        ],
-                      ),
-                    );
-                  },
-                ),
-        ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            formulario(),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Divider(),
+            ),
+            listPelicula == null || listPelicula!.isEmpty
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    itemCount: listPelicula!.length,
+                    itemBuilder: (context, index) {
+                      return Card(
+                        child: Column(
+                          children: [
+                            Text(listPelicula![index].id.toString()),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Text(listPelicula![index].nombre),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Text(listPelicula![index].genero),
+                            const SizedBox(
+                              height: 10.0,
+                            ),
+                            Text(listPelicula![index].anioEstreno.toString())
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+          ],
+        ),
       ),
-      floatingActionButton: FloatingActionButton(child: const Icon(Icons.refresh),onPressed: () {
-        setState(() {});
-      }),
+      floatingActionButton: FloatingActionButton(
+          child: const Icon(Icons.refresh),
+          onPressed: () {
+            getData();
+          }),
     );
   }
 
@@ -101,26 +111,32 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          crearCampo("Puerto", TextInputType.number, controllerPuerto),
           crearCampo("Nombre Pelicula", TextInputType.text, controllerNombre),
           crearCampo("Genero Pelicula", TextInputType.text, controllerGenero),
           crearCampo("Año de Estreno", TextInputType.number, controllerAnio),
           const SizedBox(
             height: 20.0,
           ),
-          ElevatedButton(onPressed: () {
-            String nombre = controllerNombre.text;
-            String genero = controllerGenero.text;
-            int anio = int.parse(controllerAnio.text);
-            Pelicula pelicula = Pelicula(id: 0, nombre: nombre, anioEstreno: anio, genero: genero);
-            ApiService().crearPelicula(pelicula);
-            setState(() {});
-          }, child: const Text("Insertar"))
+          ElevatedButton(
+              onPressed: () {
+                String nombre = controllerNombre.text;
+                String genero = controllerGenero.text;
+                int anio = int.parse(controllerAnio.text);
+                Pelicula pelicula = Pelicula(
+                    id: 0, nombre: nombre, anioEstreno: anio, genero: genero);
+                ApiService()
+                    .crearPelicula(pelicula, int.parse(controllerPuerto.text));
+                getData();
+              },
+              child: const Text("Insertar"))
         ],
       ),
     );
   }
 
-  Widget crearCampo(String valorCampo, TextInputType tipo, TextEditingController control) {
+  Widget crearCampo(
+      String valorCampo, TextInputType tipo, TextEditingController control) {
     return Padding(
       padding: const EdgeInsets.all(15.0),
       child: Row(
